@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import './App.css';
 import twitterLogo from './assets/twitter-logo.svg';
 
@@ -7,7 +7,12 @@ const TWITTER_HANDLE = '_buildspace';
 const TWITTER_LINK = `https://twitter.com/${TWITTER_HANDLE}`;
 
 const App = () => {
-  // FUNCTIONS
+  // STATE
+
+  const [wallet, setWallet] = useState(null);
+
+
+  // METHODS
 
   // This will check if the user has a Solana object, if the Solana object is 
   // a Phantom wallet, and if there's authorization to the Phantom wallet.
@@ -21,17 +26,38 @@ const App = () => {
 
           const response = await solana.connect({ onlyIfTrusted: true });
           console.log(
-            "Connected with Public Key:",
+            'Connected with Public Key:',
             response.publicKey.toString()
           );
+
+          setWallet(response.publicKey.toString());
         }
       } else {
-        alert("Solana object is not found! Get a phantom wallet 👻");
+        alert('Solana object is not found! Get a phantom wallet 👻');
       }
     } catch (error) {
       console.error(error);
     }
   };
+
+  const connectWallet = async () => {
+    const { solana } = window;
+
+    if (solana) {
+      const response = await solana.connect();
+      console.log('Connected with Public Key:', response.publicKey.toString());
+      setWallet(response.publicKey.toString());
+    }
+  };
+
+  const disconnected = () => (
+    <button
+      className="cta-button connect-wallet-button"
+      onClick={connectWallet}
+    >
+      CONNECT PHANTOM WALLET
+    </button>
+  );
 
   // USEEFFECTS
 
@@ -55,6 +81,7 @@ const App = () => {
         <div className="header-container">
           <p className="header">🍭 Candy Drop</p>
           <p className="sub-text">NFT drop machine with fair mint</p>
+          {!wallet && disconnected()}
         </div>
         <div className="footer-container">
           <img alt="Twitter Logo" className="twitter-logo" src={twitterLogo} />
